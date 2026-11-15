@@ -9,6 +9,7 @@ import java.nio.file.Path;
 
 public class Main {
     static void main(String[] args) {
+
         Path diretorio = Path.of("C:\\ECleaner-Teste");
 
         CleanerScanner scanner = new CleanerScanner();

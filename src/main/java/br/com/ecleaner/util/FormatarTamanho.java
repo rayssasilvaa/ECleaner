@@ -2,7 +2,7 @@ package br.com.ecleaner.util;
 
 import java.util.Locale;
 
-public class FormatarTamanho {
+public class    FormatarTamanho {
     public static String formatarDocumento(long bytes){
         if (bytes < 0){
             throw new IllegalArgumentException("O tamanho não pode ser negativo");
