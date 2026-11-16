@@ -1,5 +1,6 @@
 package br.com.ecleaner;
 
+import br.com.ecleaner.classifier.FileCategory;
 import br.com.ecleaner.model.ScanResult;
 import br.com.ecleaner.scanner.CleanerScanner;
 import br.com.ecleaner.util.FormatarTamanho;
@@ -23,8 +24,6 @@ public class Main {
             System.out.println("Quantidade de arquivos: " + resultado.getQntdArquivos());
 
             System.out.println("Tamanho total: " + FormatarTamanho.formatarDocumento(resultado.getTamanhoTotalBytes()));
-
-
 
         } catch (IOException | IllegalArgumentException e){
             System.out.println("Não foi possivel analisar diretório.");
