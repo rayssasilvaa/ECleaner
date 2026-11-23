@@ -1,3 +1,4 @@
+
 package br.com.ecleaner.classifier;
 
 import java.nio.file.Path;
@@ -5,41 +6,39 @@ import java.util.Objects;
 
 public class FileClassifier {
 
-    //metodo que ira classificar arquivos
-    public FileCategory classificar(Path arquivo){
+    // Detector responsável por identificar arquivos no cache do Opera GX.
+    private final CacheDirectoryDetector cacheDirectoryDetector;
 
-        //impede que a classificacao seja executada com um caminho null
-        Objects.requireNonNull(arquivo, "O caminho do arquivo não pode ser null");
+    public FileClassifier() {
+        this.cacheDirectoryDetector = new CacheDirectoryDetector();
+    }
 
-        //obtem o nome do arquivo sem diferenciar letras maiúsculas e minúsculas
-        String nomeArquivo = arquivo
-                .getFileName()
+    public FileClassifier(Path diretorioCacheOpera){
+        this.cacheDirectoryDetector = new CacheDirectoryDetector(diretorioCacheOpera);
+    }
+
+    // Classifica o arquivo de acordo com as regras definidas.
+    public FileCategory classificar(Path arquivo) {
+
+        // Impede que a classificação seja executada com um caminho nulo.
+        Objects.requireNonNull(arquivo, "O caminho do arquivo não pode ser null.");
+
+        // Obtém o nome do arquivo sem diferenciar letras maiúsculas e minúsculas.
+        String nomeArquivo = arquivo.getFileName()
                 .toString()
                 .toLowerCase();
 
-
-        //verifica se o arquivo é um arquivo temporario
-        if (nomeArquivo.endsWith(".tmp")){
-            return FileCategory.TEMPORY;
+        // Identifica arquivos com extensão temporária.
+        if (nomeArquivo.endsWith(".tmp")) {
+            return FileCategory.TEMPORARY;
         }
 
-        //faz a verificacao do arquivo em cache
-        if (estaEmDiretorioDeCache(arquivo)){
+        // Verifica se o arquivo pertence ao cache do Opera GX.
+        if (cacheDirectoryDetector.pertenceADiretorioDeCache(arquivo)) {
             return FileCategory.CACHE;
         }
 
+        // Classifica como OTHER quando nenhuma regra anterior é atendida.
         return FileCategory.OTHER;
-    }
-
-    //metodo que verifica arquivos em diretorio de cache
-    private boolean estaEmDiretorioDeCache(Path arquivo){
-
-        for (Path p : arquivo){
-            if (p.toString().equalsIgnoreCase("cache")){
-                return true;
-            }
-
-        }
-        return false;
     }
 }

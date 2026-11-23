@@ -1,7 +1,7 @@
 package br.com.ecleaner.classifier;
 
 public enum FileCategory {
-        TEMPORY,
+        TEMPORARY,
         CACHE,
         OTHER
 }

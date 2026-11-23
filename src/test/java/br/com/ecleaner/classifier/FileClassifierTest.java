@@ -1,6 +1,8 @@
+
 package br.com.ecleaner.classifier;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
 
@@ -8,37 +10,41 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /*
- * PATH: representa o caminho do arquivo utilizado no teste.
- * FILE CATEGORY: armazena a categoria identificada pelo classificador.
- * ASSERT EQUALS: compara o resultado obtido com o resultado esperado.
- * ASSERT THROWS: verifica se o metodo lança a exceção esperada.
+ * PATH: representa os caminhos dos arquivos utilizados nos testes.
+ * TEMP DIR: fornece um diretório temporário para os cenários de teste.
+ * FILE CLASSIFIER: realiza a classificação dos arquivos.
+ * ASSERT EQUALS: compara a categoria obtida com a categoria esperada.
+ * ASSERT THROWS: verifica se a exceção esperada foi lançada.
  */
+class FileClassifierTest {
 
-public class FileClassifierTest {
-
-    //instancia do FileClassifier
-    private final FileClassifier classifier = new FileClassifier();
+    @TempDir
+    Path diretorioTemp;
 
     @Test
     void classificarFileTmpComoTemporario() {
 
-        //simula o caminho de um arquivo temporario
+        Path diretorioCache = diretorioTemp.resolve("Cache");
+
+        FileClassifier fileClassifier = new FileClassifier(diretorioCache);
+
         Path arquivo = Path.of("arquivo.tmp");
 
-        //executa a classificacao do arquivo
-        FileCategory category = classifier.classificar(arquivo);
+        FileCategory category = fileClassifier.classificar(arquivo);
 
-        //verifica se o resultado é um arquivo tmp
-        assertEquals(FileCategory.TEMPORY, category);
-
+        assertEquals(FileCategory.TEMPORARY, category);
     }
 
     @Test
-     void classificarArquivoComOutraExtensaoComoOther() {
+    void classificarArquivoComOutraExtensaoComoOther() {
+
+        Path diretorioCache = diretorioTemp.resolve("Cache");
+
+        FileClassifier fileClassifier = new FileClassifier(diretorioCache);
 
         Path arquivo = Path.of("arquivo.pdf");
 
-        FileCategory category = classifier.classificar(arquivo);
+        FileCategory category = fileClassifier.classificar(arquivo);
 
         assertEquals(FileCategory.OTHER, category);
     }
@@ -46,50 +52,87 @@ public class FileClassifierTest {
     @Test
     void deveReconhecerExtensaoComLetraMaiuscula() {
 
+        Path diretorioCache = diretorioTemp.resolve("Cache");
+
+        FileClassifier fileClassifier = new FileClassifier(diretorioCache);
+
         Path arquivo = Path.of("arquivo.TMP");
 
-        FileCategory category = classifier.classificar(arquivo);
+        FileCategory category = fileClassifier.classificar(arquivo);
 
-        assertEquals(FileCategory.TEMPORY, category);
+        assertEquals(FileCategory.TEMPORARY, category);
     }
 
     @Test
-    void classificarArquivoDentroDeDiretorioCache(){
+    void classificarArquivoDentroDeDiretorioCache() {
 
-        Path arquivo = Path.of("Aplicativos", "Opera GX", "Cache", "arquivo.dat");
+        Path diretorioCache = diretorioTemp
+                .resolve("Opera Software")
+                .resolve("Opera GX Stable")
+                .resolve("Default")
+                .resolve("Cache");
 
-        FileCategory category = classifier.classificar(arquivo);
+        FileClassifier fileClassifier = new FileClassifier(diretorioCache);
+
+        Path arquivo = diretorioCache.resolve("arquivo.dat");
+
+        FileCategory category = fileClassifier.classificar(arquivo);
 
         assertEquals(FileCategory.CACHE, category);
     }
 
     @Test
-    void classificarArquivoDentroDeDiretorioCacheEmMinusculo(){
+    void naoDeveClassificarCacheDeOutroDiretorioComoCacheDoOpera() {
 
-        Path arquivo = Path.of("Aplicativos", "Opera GX", "cache", "arquivo.dat");
+        Path diretorioCache = diretorioTemp
+                .resolve("Opera Software")
+                .resolve("Opera GX Stable")
+                .resolve("Default")
+                .resolve("Cache");
 
-        FileCategory category = classifier.classificar(arquivo);
+        FileClassifier fileClassifier = new FileClassifier(diretorioCache);
 
-        assertEquals(FileCategory.CACHE, category);
+        Path arquivo = diretorioTemp
+                .resolve("Aplicativos")
+                .resolve("Opera GX")
+                .resolve("Cache")
+                .resolve("arquivo.dat");
+
+        FileCategory category = fileClassifier.classificar(arquivo);
+
+        assertEquals(FileCategory.OTHER, category);
     }
 
     @Test
     void deveReconhecerDiretorioCacheEmSubpastas() {
 
-        Path arquivo = Path.of("Aplicativos", "Opera GX", "Cache", "Dados", "arquivo.dat");
+        Path diretorioCache = diretorioTemp
+                .resolve("Opera Software")
+                .resolve("Opera GX Stable")
+                .resolve("Default")
+                .resolve("Cache");
 
-        FileCategory category = classifier.classificar(arquivo);
+        FileClassifier fileClassifier = new FileClassifier(diretorioCache);
+
+        Path arquivo = diretorioCache
+                .resolve("Dados")
+                .resolve("arquivo.dat");
+
+        FileCategory category = fileClassifier.classificar(arquivo);
 
         assertEquals(FileCategory.CACHE, category);
     }
 
     @Test
-    void deveRejeitarCaminhosNull(){
+    void deveRejeitarCaminhosNull() {
+
+        Path diretorioCache = diretorioTemp.resolve("Cache");
+
+        FileClassifier fileClassifier = new FileClassifier(diretorioCache);
 
         assertThrows(
-                NullPointerException.class, () -> classifier.classificar(null)
+                NullPointerException.class,
+                () -> fileClassifier.classificar(null)
         );
     }
 }
-
-
