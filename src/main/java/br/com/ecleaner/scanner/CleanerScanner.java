@@ -1,5 +1,7 @@
 package br.com.ecleaner.scanner;
 
+import br.com.ecleaner.classifier.FileClassifier;
+import br.com.ecleaner.model.ScanItem;
 import br.com.ecleaner.model.ScanResult;
 
 import java.io.IOException;
@@ -8,8 +10,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CleanerScanner {
+    private final FileClassifier fileClassifier;
 
     public ScanResult analisarDiretorio(Path diretorio) throws IOException {
 
@@ -33,6 +38,8 @@ public class CleanerScanner {
         // Armazena o tamanho total dos arquivos em bytes.
         long[] tamanhoTotalBytes = {0};
 
+        List<ScanItem> itensAnalisados = new ArrayList<>();
+
         // Percorre o diretório informado e suas subpastas.
         Files.walkFileTree(diretorio, new SimpleFileVisitor<>() {
 
@@ -50,7 +57,13 @@ public class CleanerScanner {
 
                     // Soma o tamanho do arquivo ao total acumulado.
                     tamanhoTotalBytes[0] += atributos.size();
+
+                    var categoria = fileClassifier.classificar(arquivo);
+
+                    ScanItem item = new ScanItem(arquivo, atributos.size(), categoria);
+                    itensAnalisados.add(item);
                 }
+
 
                 // Continua a busca pelos próximos arquivos.
                 return FileVisitResult.CONTINUE;
@@ -61,7 +74,13 @@ public class CleanerScanner {
         return new ScanResult(
                 diretorio,
                 quantidadeArquivos[0],
-                tamanhoTotalBytes[0]
+                tamanhoTotalBytes[0],
+                itensAnalisados
         );
+    }
+
+
+    public CleanerScanner(){
+        this.fileClassifier = new FileClassifier();
     }
 }

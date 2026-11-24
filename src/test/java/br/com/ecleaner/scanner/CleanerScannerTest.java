@@ -13,20 +13,20 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CleanerScannerTest {
 
     @TempDir
-    Path temporyFile; // Diretório temporário criado automaticamente pelo JUnit.
+    Path diretorioTemporario; // Diretório temporário criado automaticamente pelo JUnit.
 
     //conta arquivos em subdiretorios
     @Test
     void contarFilesEmSubdiretorio() throws IOException {
 
         // Cria o caminho de uma subpasta dentro do diretório temporário.
-        Path subdiretorio = temporyFile.resolve("Projetos");
+        Path subdiretorio = diretorioTemporario.resolve("Projetos");
 
         // Cria a subpasta Projetos.
         Files.createDirectories(subdiretorio);
 
         // Cria um arquivo de 100 bytes no diretório principal.
-        Files.writeString(temporyFile.resolve("arquivo01.txt"), "a".repeat(100));
+        Files.writeString(diretorioTemporario.resolve("arquivo01.txt"), "a".repeat(100));
 
         // Cria um arquivo de 200 bytes dentro da subpasta.
         Files.writeString(subdiretorio.resolve("arquivo02.txt"), "b".repeat(200));
@@ -38,7 +38,7 @@ public class CleanerScannerTest {
         CleanerScanner scanner = new CleanerScanner();
 
         // Analisa o diretório temporário e suas subpastas.
-        ScanResult result = scanner.analisarDiretorio(temporyFile);
+        ScanResult result = scanner.analisarDiretorio(diretorioTemporario);
 
         // Verifica se o resultado da análise não é nulo.
         assertNotNull(result);
@@ -58,7 +58,7 @@ public class CleanerScannerTest {
         CleanerScanner scanner = new CleanerScanner();
 
         // Analisa o diretório temporário.
-        ScanResult resultado = scanner.analisarDiretorio(temporyFile);
+        ScanResult resultado = scanner.analisarDiretorio(diretorioTemporario);
 
         // Verifica se o resultado da análise não é nulo.
         assertNotNull(resultado);
@@ -75,7 +75,7 @@ public class CleanerScannerTest {
     void rejeitarDiretorioInexistente(){
 
         //cria um arquivo que nao existe
-        Path diretorioInexistente = temporyFile.resolve("file-fantasma");
+        Path diretorioInexistente = diretorioTemporario.resolve("file-fantasma");
 
         //cria uma instancia do scanner
         CleanerScanner scanner = new CleanerScanner();
@@ -91,7 +91,7 @@ public class CleanerScannerTest {
     void rejeitarCaminhoQueApontaUmArquivo()  throws IOException{
 
         //cria um arquivo dentro do diretorio temporario
-        Path arquivo = Files.createFile(temporyFile.resolve("arquivo.txt"));
+        Path arquivo = Files.createFile(diretorioTemporario.resolve("arquivo.txt"));
 
         CleanerScanner scanner = new CleanerScanner();
 
